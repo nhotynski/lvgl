@@ -39,29 +39,34 @@ static lv_obj_t * create_scale_box(lv_obj_t * parent, const char * title, const 
                                    const char * text3);
 static lv_obj_t * create_shop_item(lv_obj_t * parent, const void * img_src, const char * name, const char * category,
                                    const char * price);
-
+/*
 static void color_changer_event_cb(lv_event_t * e);
-static void color_event_cb(lv_event_t * e);
+static void color_event_cb(lv_event_t * e);*/
 static void ta_event_cb(lv_event_t * e);
+/*
 static void birthday_event_cb(lv_event_t * e);
-static void calendar_event_cb(lv_event_t * e);
-static void slider_event_cb(lv_event_t * e);
-static void chart_event_cb(lv_event_t * e);
+static void calendar_event_cb(lv_event_t * e);*/
+
+//static void slider_event_cb(lv_event_t * e);
+//static void chart_event_cb(lv_event_t * e);
+/*
 static void shop_chart_event_cb(lv_event_t * e);
 static void scale1_indic1_anim_cb(void * var, int32_t v);
 static void scale2_timer_cb(lv_timer_t * timer);
 static void scale3_anim_cb(void * var, int32_t v);
-static void scale3_size_changed_event_cb(lv_event_t * e);
+static void scale3_size_changed_event_cb(lv_event_t * e);*/
 static void scroll_anim_y_cb(void * var, int32_t v);
 static void scroll_anim_y_cb(void * var, int32_t v);
+/*
 static void delete_timer_event_cb(lv_event_t * e);
 static void slideshow_anim_completed_cb(lv_anim_t * a_old);
 static void scale3_delete_event_cb(lv_event_t * e);
-static void tabview_delete_event_cb(lv_event_t * e);
+static void tabview_delete_event_cb(lv_event_t * e);*/
 
 /**********************
  *  STATIC VARIABLES
  **********************/
+<<<<<<< Updated upstream
 static disp_size_t disp_size;
 
 static lv_obj_t * tv;
@@ -103,14 +108,40 @@ static lv_style_t scale3_section3_tick_style;
 
 static lv_obj_t * scale3_needle;
 static lv_obj_t * scale3_mbps_label;
+=======
+
+
+
+
+#define SCREEN_WIDTH 240
+#define SCREEN_HEIGHT 320
+
+#define DRAW_BUF_SIZE (SCREEN_WIDTH * SCREEN_HEIGHT / 10 * (LV_COLOR_DEPTH / 8))
+uint32_t draw_buf[DRAW_BUF_SIZE / 4];
+
+>>>>>>> Stashed changes
 
 /**********************
  *      MACROS
  **********************/
+ // Callback that prints the current slider value on the TFT display and Serial Monitor for debugging purposes
 
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
+
+
+static lv_obj_t* slider_label;
+// Callback that prints the current slider value on the TFT display and Serial Monitor for debugging purposes
+static void slider_event_callback(lv_event_t* e) {
+    lv_obj_t* slider = (lv_obj_t*)lv_event_get_target(e);
+    char buf[8];
+    lv_snprintf(buf, sizeof(buf), "%d%%", (int)lv_slider_get_value(slider));
+    lv_label_set_text(slider_label, buf);
+    lv_obj_align_to(slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+    LV_LOG_USER("Slider changed to %d%%", (int)lv_slider_get_value(slider));
+}
+
 
 void lv_demo_widgets(void)
 {
@@ -177,6 +208,7 @@ void lv_demo_widgets(void)
     lv_style_set_text_color(&style_icon, lv_theme_get_color_primary(NULL));
     lv_style_set_text_font(&style_icon, font_large);
 
+<<<<<<< Updated upstream
     lv_style_init(&style_bullet);
     lv_style_set_border_width(&style_bullet, 0);
     lv_style_set_radius(&style_bullet, LV_RADIUS_CIRCLE);
@@ -218,51 +250,57 @@ void lv_demo_widgets(void)
     shop_create(t3);
 
     color_changer_create(tv);
+=======
+    // Create a text label aligned center on top ("Hello, world!")
+    lv_obj_t* text_label = lv_label_create(lv_screen_active());
+    lv_label_set_long_mode(text_label, LV_LABEL_LONG_WRAP);    // Breaks the long lines
+    lv_label_set_text(text_label, "Hello, world!");
+    lv_obj_set_width(text_label, 150);    // Set smaller width to make the lines wrap
+    lv_obj_set_style_text_align(text_label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(text_label, LV_ALIGN_CENTER, 0, -90);
+    //k
+
+
+
+      // Create a slider aligned in the center bottom of the TFT display
+    lv_obj_t* slider = lv_slider_create(lv_screen_active());
+    lv_obj_align(slider, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_add_event_cb(slider, slider_event_callback, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_slider_set_range(slider, 0, 100);
+    lv_obj_set_style_anim_duration(slider, 2000, 0);
+
+    // Create a label below the slider to display the current slider value
+    slider_label = lv_label_create(lv_screen_active());
+    lv_label_set_text(slider_label, "0%");
+    lv_obj_align_to(slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+    //k
+
+
+
+
+>>>>>>> Stashed changes
 }
 
 void lv_demo_widgets_start_slideshow(void)
 {
-    lv_obj_update_layout(tv);
 
-    lv_obj_t * cont = lv_tabview_get_content(tv);
-
-    lv_obj_t * tab = lv_obj_get_child(cont, 0);
-
-    int32_t v = lv_obj_get_scroll_bottom(tab);
-    uint32_t t = lv_anim_speed(lv_display_get_dpi(NULL));
-    lv_anim_t a;
-    lv_anim_init(&a);
-    lv_anim_set_exec_cb(&a, scroll_anim_y_cb);
-    lv_anim_set_duration(&a, t);
-    lv_anim_set_playback_duration(&a, t);
-    lv_anim_set_values(&a, 0, v);
-    lv_anim_set_var(&a, tab);
-    lv_anim_set_completed_cb(&a, slideshow_anim_completed_cb);
-    lv_anim_start(&a);
 }
 
 /**********************
  *   STATIC FUNCTIONS
  **********************/
 
-static void profile_create(lv_obj_t * parent)
-{
-    lv_obj_t * panel1 = lv_obj_create(parent);
-    lv_obj_set_height(panel1, LV_SIZE_CONTENT);
 
+<<<<<<< Updated upstream
     LV_IMAGE_DECLARE(img_demo_widgets_avatar);
     lv_obj_t * avatar = lv_image_create(panel1);
     lv_image_set_src(avatar, &img_demo_widgets_avatar);
+=======
+>>>>>>> Stashed changes
 
-    lv_obj_t * name = lv_label_create(panel1);
-    lv_label_set_text(name, "Elena Smith");
-    lv_obj_add_style(name, &style_title, 0);
 
-    lv_obj_t * dsc = lv_label_create(panel1);
-    lv_obj_add_style(dsc, &style_text_muted, 0);
-    lv_label_set_text(dsc, "This is a short description of me. Take a look at my profile!");
-    lv_label_set_long_mode(dsc, LV_LABEL_LONG_WRAP);
 
+<<<<<<< Updated upstream
     lv_obj_t * email_icn = lv_label_create(panel1);
     lv_obj_add_style(email_icn, &style_icon, 0);
     lv_label_set_text(email_icn, LV_SYMBOL_ENVELOPE);
@@ -1710,4 +1748,6 @@ static void tabview_delete_event_cb(lv_event_t * e)
         lv_style_reset(&style_bullet);
     }
 }
+=======
+>>>>>>> Stashed changes
 #endif
